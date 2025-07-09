@@ -27,9 +27,9 @@ class MessageHandler {
         return;
       }
 
-      // Проверяем команды Shapes API
-      if (message.content && message.content.trim().startsWith('!shape_')) {
-        await this.handleShapeCommand(message, botId);
+      // Проверяем команды !shaper с подкомандами
+      if (message.content && message.content.trim().startsWith('!shaper ')) {
+        await this.handleShaperSubcommand(message, botId);
         return;
       }
 
@@ -45,11 +45,11 @@ class MessageHandler {
     }
   }
 
-  // Обработка команд Shapes API
-  async handleShapeCommand(message, botId) {
+  // Обработка подкомманд !shaper
+  async handleShaperSubcommand(message, botId) {
     try {
       const content = message.content.trim();
-      const commandMatch = content.match(/^!shape_(\w+)(?:\s+(.+))?$/);
+      const commandMatch = content.match(/^!shaper\s+(\w+)(?:\s+(.+))?$/);
       
       if (!commandMatch) {
         await this.sendHelpMessage(message.channel, message.author === this.botOwnerId);
@@ -130,7 +130,7 @@ class MessageHandler {
       await this.messageManager.sendMessage(message.channel, aiResponse, masquerade);
 
     } catch (error) {
-      console.error('Error handling shape command:', error.message);
+      console.error('Error handling shaper subcommand:', error.message);
       
       const masquerade = await this.shaperHandler.getActiveMasquerade(message.channel, message.author);
       await this.messageManager.sendMessage(
@@ -143,26 +143,26 @@ class MessageHandler {
 
   // Отправка сообщения с помощью по командам
   async sendHelpMessage(channelId, isOwner = false) {
-    let helpText = `🤖 **Доступные команды Shapes API:**
+    let helpText = `🤖 **Доступные команды !shaper:**
 
 **Творчество:**
-• \`!shape_imagine [описание]\` - Генерация изображения
+• \`!shaper imagine [описание]\` - Генерация изображения
 
 **Поиск:**
-• \`!shape_web [запрос]\` - Поиск в интернете
+• \`!shaper web [запрос]\` - Поиск в интернете
 
 **Информация:**
-• \`!shape_info\` - Информация о персонаже
-• \`!shape_help\` - Показать эту справку`;
+• \`!shaper info\` - Информация о персонаже
+• \`!shaper help\` - Показать эту справку`;
 
     if (isOwner) {
       helpText += `
 
 **🔒 Команды владельца:**
-• \`!shape_reset\` - Сброс долгосрочной памяти
-• \`!shape_wack\` - Сброс краткосрочной памяти
-• \`!shape_sleep\` - Принудительное сохранение памяти
-• \`!shape_dashboard\` - Ссылка на панель управления`;
+• \`!shaper reset\` - Сброс долгосрочной памяти
+• \`!shaper wack\` - Сброс краткосрочной памяти
+• \`!shaper sleep\` - Принудительное сохранение памяти
+• \`!shaper dashboard\` - Ссылка на панель управления`;
     } else {
       helpText += `
 
