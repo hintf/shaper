@@ -84,7 +84,6 @@ class RevoltAPI {
     try {
       const body = {};
       if (username) body.username = username;
-      if (avatar) body.avatar = avatar;
       
       await this.patch('/users/@me', body);
       return true;
