@@ -61,7 +61,7 @@ class MessageHandler {
       // Проверяем права доступа для деструктивных команд
       const ownerOnlyCommands = ['reset', 'wack', 'sleep', 'dashboard'];
       if (ownerOnlyCommands.includes(command) && message.author !== this.botOwnerId) {
-        const masquerade = await this.shaperHandler.getActiveMasquerade(message.channel);
+        const masquerade = await this.shaperHandler.getActiveMasquerade(message.channel, message.author);
         await this.messageManager.sendMessage(
           message.channel, 
           "❌ **Доступ запрещён!** Эта команда доступна только владельцу бота.", 
@@ -106,7 +106,7 @@ class MessageHandler {
       }
 
       // Определяем активный персонаж
-      const activeShapeId = this.shaperHandler.getActiveShape(message.channel);
+      const activeShapeId = this.shaperHandler.getActiveShape(message.channel, message.author);
       let shapeUsername;
       
       if (activeShapeId && this.availableShapes[activeShapeId]) {
@@ -125,14 +125,14 @@ class MessageHandler {
       });
 
       const aiResponse = response.choices[0].message.content;
-      const masquerade = await this.shaperHandler.getActiveMasquerade(message.channel);
+      const masquerade = await this.shaperHandler.getActiveMasquerade(message.channel, message.author);
       
       await this.messageManager.sendMessage(message.channel, aiResponse, masquerade);
 
     } catch (error) {
       console.error('Error handling shape command:', error.message);
       
-      const masquerade = await this.shaperHandler.getActiveMasquerade(message.channel);
+      const masquerade = await this.shaperHandler.getActiveMasquerade(message.channel, message.author);
       await this.messageManager.sendMessage(
         message.channel, 
         "❌ Ошибка при выполнении команды.", 
@@ -208,7 +208,7 @@ class MessageHandler {
 
       // Если нет текста и вложений, отправляем приветствие
       if (!content && !attachments) {
-        const masquerade = await this.shaperHandler.getActiveMasquerade(message.channel);
+        const masquerade = await this.shaperHandler.getActiveMasquerade(message.channel, message.author);
         await this.messageManager.sendMessage(
           message.channel, 
           "Hello! How can I help you today?", 
@@ -223,7 +223,7 @@ class MessageHandler {
       }
 
       // Определяем активный персонаж
-      const activeShapeId = this.shaperHandler.getActiveShape(message.channel);
+      const activeShapeId = this.shaperHandler.getActiveShape(message.channel, message.author);
       let shapeUsername;
       
       if (activeShapeId && this.availableShapes[activeShapeId]) {
@@ -248,7 +248,7 @@ class MessageHandler {
       const aiResponse = response.choices[0].message.content;
 
       // Получаем маскарад для ответа
-      const masquerade = await this.shaperHandler.getActiveMasquerade(message.channel);
+      const masquerade = await this.shaperHandler.getActiveMasquerade(message.channel, message.author);
 
       // Отправляем ответ
       await this.messageManager.sendMessage(message.channel, aiResponse, masquerade);
@@ -256,7 +256,7 @@ class MessageHandler {
     } catch (error) {
       console.error('Error processing message:', error.message);
       
-      const masquerade = await this.shaperHandler.getActiveMasquerade(message.channel);
+      const masquerade = await this.shaperHandler.getActiveMasquerade(message.channel, message.author);
       await this.messageManager.sendMessage(
         message.channel, 
         "Sorry, I encountered an error while processing your request.", 
