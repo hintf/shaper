@@ -95,34 +95,6 @@ async function startBot() {
           const channelId = message.channel_id || message.channel;
           const messageId = message.message_id || message.id;
 
-          // Обработка реакции "🔄" (Спросить другого персонажа)
-          if (emoji === '🔄') {
-            if (messageManager.recentBotResponses.has(messageId)) {
-              const originalUserMessageId = messageManager.recentBotResponses.get(messageId);
-              await shaperHandler.handleAskAnotherShapeCommand(channelId, originalUserMessageId);
-              
-              // Удаляем реакцию чтобы избежать повторного срабатывания
-              try {
-                const encodedEmoji = encodeURIComponent(emoji);
-                await revoltAPI.delete(`/channels/${channelId}/messages/${messageId}/reactions/${encodedEmoji}/${message.user_id}`);
-              } catch (error) {
-                console.error('Error removing reaction:', error.message);
-              }
-            }
-            return;
-          }
-
-          // Обработка реакции на сообщение "Спросить другого персонажа"
-          const askAnotherResult = await shaperHandler.handleAskAnotherShapeSelection(messageId, emoji, message.user_id, botId);
-          if (askAnotherResult && askAnotherResult.shouldReprocess) {
-            // Повторно обрабатываем исходное сообщение с новым персонажем
-            await messageHandler.processMessage(askAnotherResult.originalMessage, botId);
-            // Восстанавливаем предыдущий активный персонаж
-            if (askAnotherResult.previousShapeId) {
-              shaperHandler.activeShapes.set(askAnotherResult.channelId, askAnotherResult.previousShapeId);
-            }
-            return;
-          }
 
           await shaperHandler.handleShapeSelection(channelId, emoji, message.user_id, botId);
         }
