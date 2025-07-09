@@ -6,10 +6,15 @@ class ShaperHandler {
     this.api = revoltAPI;
     this.messageManager = messageManager;
     this.availableShapes = availableShapes;
+    // Изменяем структуру хранения: теперь ключ - это "channelId:userId"
     this.activeShapes = new Map();
     this.avatarManager = new AvatarManager();
     this.shaperMessages = new Map(); // Для отслеживания сообщений выбора персонажа
-    this.lastBotProfileUpdate = 0; // Для ограничения частоты обновления профиля бота
+  }
+
+  // Создание составного ключа для хранения активного персонажа
+  createUserShapeKey(channelId, userId) {
+    return `${channelId}:${userId}`;
   }
 
   // Обработка команды !shaper
@@ -78,8 +83,9 @@ class ShaperHandler {
     }
 
     if (selectedShapeId && this.availableShapes[selectedShapeId]) {
-      // Устанавливаем активный Shape для канала
-      this.activeShapes.set(channelId, selectedShapeId);
+      // Устанавливаем активный Shape для пользователя в данном канале
+      const userShapeKey = this.createUserShapeKey(channelId, userId);
+      this.activeShapes.set(userShapeKey, selectedShapeId);
       
       // Отправляем подтверждение
       const config = shapeConfig[selectedShapeId];
@@ -87,12 +93,9 @@ class ShaperHandler {
       
       await this.messageManager.sendMessage(
         channelId, 
-        `🎭 Персонаж изменён на **${config.name}** ${config.emoji}`,
+        `🎭 Ваш персонаж изменён на **${config.name}** ${config.emoji}`,
         masquerade
       );
-
-      // Смена никнейма и аватара основного бота:
-      await this.updateBotProfile(selectedShapeId);
 
       // Планируем удаление сообщений через минуту
       if (this.shaperMessages.has(channelId)) {
@@ -129,46 +132,18 @@ class ShaperHandler {
     }
   }
 
-  // Получение активного персонажа для канала
-  getActiveShape(channelId) {
-    return this.activeShapes.get(channelId);
+  // Получение активного персонажа для пользователя в канале
+  getActiveShape(channelId, userId) {
+    const userShapeKey = this.createUserShapeKey(channelId, userId);
+    return this.activeShapes.get(userShapeKey);
   }
 
-  // Получение маскарада для активного персонажа
-  async getActiveMasquerade(channelId) {
-    const activeShapeId = this.activeShapes.get(channelId);
+  // Получение маскарада для активного персонажа пользователя
+  async getActiveMasquerade(channelId, userId) {
+    const activeShapeId = this.getActiveShape(channelId, userId);
     if (!activeShapeId) return null;
     
     return await this.createMasquerade(activeShapeId);
-  }
-
-  // Обработка команды "Спросить другого персонажа"
-  async updateBotProfile(shapeId) {
-    try {
-      // Проверяем ограничение частоты (не чаще раза в 10 секунд)
-      const now = Date.now();
-      if (now - this.lastBotProfileUpdate < 10000) {
-        console.log('Bot profile update skipped due to rate limit');
-        return false;
-      }
-
-      const config = shapeConfig[shapeId];
-      if (!config) return false;
-
-      const username = config.name;
-
-      const result = await this.api.updateBotProfile(username);
-      
-      if (result) {
-        this.lastBotProfileUpdate = now;
-        console.log(`Bot profile updated to ${username}`);
-      }
-      
-      return result;
-    } catch (error) {
-      console.error('Error updating bot profile:', error.message);
-      return false;
-    }
   }
 }
 
