@@ -3,6 +3,7 @@ Supports replies to bot in channels and Revolt Masquerade. Shapes are chosen via
 Shape selection is user and channel-saved, meaning: user 1 speaks to shape 1, user 2 selects shape 2 ---> user 1 still speaks to shape 1
 You need your own tokens and put them into .env: cp .env.example .env
 Shape usernames and avatars: see config folder
+Also need to write path to your .env in bot.js!
 
 Normal readme later maybe :) I'm out of AI tokens for now lol
 
