@@ -9,7 +9,7 @@ const ShaperHandler = require('./handlers/shaperHandler');
 const MessageHandler = require('./handlers/messageHandler');
 
 // Загрузка переменных окружения
-dotenv.config({ path: '/home/hintf/bots/revolt/shape-revolt/.env' });
+dotenv.config({ path: '/home/user/.../.env' });
 
 // Проверка обязательных переменных
 if (!process.env.SHAPESINC_API_KEY) {
