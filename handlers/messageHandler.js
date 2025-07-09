@@ -197,15 +197,6 @@ class MessageHandler {
   // Обработка сообщения и генерация ответа
   async processMessage(message, botId) {
     try {
-      // Сохраняем исходное сообщение пользователя
-      this.messageManager.addRecentUserMessage(message._id, {
-        content: message.content,
-        attachments: message.attachments,
-        channelId: message.channel,
-        authorId: message.author,
-        _id: message._id
-      });
-
       // Очищаем упоминание из текста
       let content = message.content || '';
       if (content.includes(`<@${botId}>`)) {
@@ -260,7 +251,7 @@ class MessageHandler {
       const masquerade = await this.shaperHandler.getActiveMasquerade(message.channel);
 
       // Отправляем ответ
-      await this.messageManager.sendMessage(message.channel, aiResponse, masquerade, message._id);
+      await this.messageManager.sendMessage(message.channel, aiResponse, masquerade);
 
     } catch (error) {
       console.error('Error processing message:', error.message);
