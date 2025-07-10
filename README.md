@@ -44,6 +44,7 @@ Copy `.env.example` to `.env` and fill in your credentials:
 
 ```bash
 cp .env.example .env
+nano .env
 ```
 
 The most important variables to set:
