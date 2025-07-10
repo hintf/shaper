@@ -51,7 +51,7 @@ The most important variables to set:
 - `REVOLT_TOKEN`: Your bot token from Revolt
 - `SHAPESINC_API_KEY`: Your API key from Shapes.inc
 - `BOT_OWNER_ID`: Your Revolt user ID (for admin commands)
-- `SHAPESINC_SHAPE_USERNAME_1` through `SHAPESINC_SHAPE_USERNAME_6`: The usernames of your Shapes characters
+- `SHAPESINC_SHAPE_USERNAME_1` through `SHAPESINC_SHAPE_USERNAME_...`: The usernames of your Shapes characters
 
 ### Running the Bot
 
