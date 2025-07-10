@@ -165,7 +165,7 @@ When setting up your bot in Revolt, you'll need to grant it specific permissions
 - **Send Messages**: Obviously required for the bot to actually talk back to users
 - **Add Reactions**: Used for the character selection interface - the bot adds emoji reactions that users can click
 - **Read Message History**: Allows the bot to see replies and maintain conversation context
-- - **Manage Messages**: Bot auto-deletes !shaper selection menu and the command text itself to keep channel clean
+- **Manage Messages**: Bot auto-deletes !shaper selection menu and the command text itself to keep channel clean
 
 **Optional but Recommended:**
 - **Use External Emojis**: If you want to use custom emojis for character selection instead of Unicode ones
