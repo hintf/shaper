@@ -156,7 +156,7 @@ Most VPS providers work fine. Make sure you have:
 - `!shaper sleep`: Force memory save
 - `!shaper dashboard`: Get dashboard link
 
-### Bot Permissions
+### ✔ Bot Permissions
 
 When setting up your bot in Revolt, you'll need to grant it specific permissions to function properly. Here's what the bot needs and why:
 
