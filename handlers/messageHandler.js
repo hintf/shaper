@@ -45,6 +45,26 @@ class MessageHandler {
     }
   }
 
+  // Получение отображаемого имени пользователя
+  async getUserUsername(userId) {
+    try {
+      const { data: userData } = await this.api.get(`/users/${userId}`);
+      
+      // Формируем отображаемое имя в формате username#discriminator
+      if (userData.username) {
+        const discriminator = userData.discriminator || '0000';
+        return `${userData.username}#${discriminator}`;
+      }
+      
+      // Если username недоступен, возвращаем ID как fallback
+      return userId;
+    } catch (error) {
+      console.error(`Error fetching user data for ${userId}:`, error.message);
+      // В случае ошибки возвращаем ID как fallback
+      return userId;
+    }
+  }
+
   // Обработка подкомманд !shaper
   async handleShaperSubcommand(message, botId) {
     try {
@@ -105,6 +125,9 @@ class MessageHandler {
           return;
       }
 
+      // Получаем отображаемое имя пользователя
+      const userDisplayName = await this.getUserUsername(message.author);
+
       // Определяем активный персонаж
       const activeShapeId = this.shaperHandler.getActiveShape(message.channel, message.author);
       let shapeUsername;
@@ -116,12 +139,20 @@ class MessageHandler {
         shapeUsername = this.availableShapes[firstShapeId];
       }
 
+      // Подготавливаем custom headers
+      const customHeaders = {
+        'X-User-Id': userDisplayName,
+        'X-Channel-Id': message.channel
+      };
+
       // Отправляем команду к Shapes API
       const response = await this.shapes.chat.completions.create({
         model: `shapesinc/${shapeUsername}`,
         messages: [{ role: "user", content: shapeCommand }],
         temperature: 0.7,
         max_tokens: 1000
+      }, {
+        headers: customHeaders
       });
 
       const aiResponse = response.choices[0].message.content;
@@ -222,6 +253,9 @@ class MessageHandler {
         content = "Please describe this";
       }
 
+      // Получаем отображаемое имя пользователя
+      const userDisplayName = await this.getUserUsername(message.author);
+
       // Определяем активный персонаж
       const activeShapeId = this.shaperHandler.getActiveShape(message.channel, message.author);
       let shapeUsername;
@@ -237,12 +271,20 @@ class MessageHandler {
       // Подготавливаем запрос к API
       const apiMessages = this.prepareAPIMessages(content, attachments);
 
+      // Подготавливаем custom headers
+      const customHeaders = {
+        'X-User-Id': userDisplayName,
+        'X-Channel-Id': message.channel
+      };
+
       // Отправляем запрос к Shapes API
       const response = await this.shapes.chat.completions.create({
         model: `shapesinc/${shapeUsername}`,
         messages: apiMessages,
         temperature: 0.7,
         max_tokens: 1000
+      }, {
+        headers: customHeaders
       });
 
       const aiResponse = response.choices[0].message.content;
