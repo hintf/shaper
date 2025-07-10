@@ -156,6 +156,24 @@ Most VPS providers work fine. Make sure you have:
 - `!shaper sleep`: Force memory save
 - `!shaper dashboard`: Get dashboard link
 
+### Bot Permissions
+
+When setting up your bot in Revolt, you'll need to grant it specific permissions to function properly. Here's what the bot needs and why:
+
+**Essential Permissions:**
+- **View Channel**: The bot needs to see channels to read messages and respond appropriately
+- **Send Messages**: Obviously required for the bot to actually talk back to users
+- **Add Reactions**: Used for the character selection interface - the bot adds emoji reactions that users can click
+- **Read Message History**: Allows the bot to see replies and maintain conversation context
+- - **Manage Messages**: Bot auto-deletes !shaper selection menu and the command text itself to keep channel clean
+
+**Optional but Recommended:**
+- **Use External Emojis**: If you want to use custom emojis for character selection instead of Unicode ones
+
+Most Revolt servers have reasonable default permissions, but if your bot seems unresponsive, double-check these settings in your server's role configuration. The bot doesn't need admin permissions - it's designed to work with minimal access for security reasons.
+
+If you're testing in DMs, permissions aren't an issue since the bot can always respond to direct messages.
+
 ### Interaction
 
 The bot responds to mentions, DMs, and replies to its messages. Just talk naturally - no special syntax required for regular conversation.
