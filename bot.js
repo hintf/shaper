@@ -51,6 +51,38 @@ const messageHandler = new MessageHandler(revoltAPI, messageManager, shaperHandl
 // Информация о боте
 let botId = null;
 let botUsername = null;
+let pingInterval = null;
+let socket = null;
+
+// Функция для отправки ping
+function sendPing() {
+  if (socket && socket.readyState === WebSocket.OPEN) {
+    console.log('Sending ping to server...');
+    socket.send(JSON.stringify({
+      type: 'Ping',
+      content: Date.now() // Отправляем текущее время как содержимое ping
+    }));
+  }
+}
+
+// Функция для настройки heartbeat
+function setupHeartbeat() {
+  // Очищаем предыдущий интервал, если он есть
+  if (pingInterval) {
+    clearInterval(pingInterval);
+  }
+  
+  // Отправляем ping каждые 20 секунд (рекомендуется 10-30 секунд)
+  pingInterval = setInterval(sendPing, 20000);
+}
+
+// Функция для очистки heartbeat
+function clearHeartbeat() {
+  if (pingInterval) {
+    clearInterval(pingInterval);
+    pingInterval = null;
+  }
+}
 
 // Основная функция бота
 async function startBot() {
@@ -63,7 +95,7 @@ async function startBot() {
     console.log(`Logged in as ${botUsername} (${botId})`);
     
     // Подключаемся к WebSocket
-    const socket = new WebSocket('wss://ws.revolt.chat');
+    socket = new WebSocket('wss://ws.revolt.chat');
     
     socket.on('open', () => {
       console.log('Connected to Revolt WebSocket');
@@ -79,6 +111,24 @@ async function startBot() {
         
         if (message.type === 'Ready') {
           console.log('Bot is ready to receive messages');
+          // Запускаем heartbeat после успешного подключения
+          setupHeartbeat();
+        }
+        
+        // Обрабатываем Pong ответы от сервера
+        if (message.type === 'Pong') {
+          console.log('Received pong from server');
+          return;
+        }
+        
+        // Если сервер отправляет Ping (редко, но может быть)
+        if (message.type === 'Ping') {
+          console.log('Received ping from server, sending pong...');
+          socket.send(JSON.stringify({
+            type: 'Pong',
+            content: message.content
+          }));
+          return;
         }
         
         if (message.type === 'Message') {
@@ -95,7 +145,6 @@ async function startBot() {
           const channelId = message.channel_id || message.channel;
           const messageId = message.message_id || message.id;
 
-
           await shaperHandler.handleShapeSelection(channelId, emoji, message.user_id, botId);
         }
         
@@ -106,20 +155,42 @@ async function startBot() {
     
     socket.on('error', (error) => {
       console.error('WebSocket error:', error);
+      clearHeartbeat();
     });
     
     socket.on('close', (code, reason) => {
       console.log(`WebSocket connection closed: ${code} - ${reason}`);
+      clearHeartbeat();
       console.log('Reconnecting in 5 seconds...');
       setTimeout(startBot, 5000);
     });
     
   } catch (error) {
     console.error('Error starting bot:', error.message);
+    clearHeartbeat();
     console.log('Retrying in 10 seconds...');
     setTimeout(startBot, 10000);
   }
 }
+
+// Graceful shutdown
+process.on('SIGINT', () => {
+  console.log('Received SIGINT, shutting down gracefully...');
+  clearHeartbeat();
+  if (socket) {
+    socket.close();
+  }
+  process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+  console.log('Received SIGTERM, shutting down gracefully...');
+  clearHeartbeat();
+  if (socket) {
+    socket.close();
+  }
+  process.exit(0);
+});
 
 // Запуск бота
 console.log('Starting bot...');
